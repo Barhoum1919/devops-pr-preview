@@ -70,9 +70,7 @@ jobs:
             REACT_APP_BUILD_TIME=${{ steps.build-args.outputs.build-time }}
             REACT_APP_GIT_SHA=${{ steps.build-args.outputs.git-sha }}
             REACT_APP_PR_NUMBER=${{ steps.build-args.outputs.pr-number }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
+  
       - name: Output image info
         run: |
           echo "Image pushed successfully!"
