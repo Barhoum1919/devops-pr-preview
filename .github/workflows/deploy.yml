@@ -22,7 +22,7 @@ jobs:
             PR=${{ github.event.pull_request.number }}
             ./scripts/deploy_preview.sh $PR
             # post comment with URL
-            PREVIEW_URL="https://pr-${PR}.yourname.duckdns.org"
+            PREVIEW_URL="https://pr-${PR}.barhoum1919.duckdns.org"
             echo "Posting PR comment with preview URL"
             gh auth setup-git  # optional if using gh
             # use API to post a comment

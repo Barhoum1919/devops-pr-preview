@@ -29,7 +29,8 @@ jobs:
           docker build -t $IMAGE:${TAG_SHA} -t $IMAGE:latest .
           
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-            PR=${GITHUB_REF#refs/pull/}   # extract PR number from ref
+            PR=${GITHUB_REF#refs/pull/} 
+            PR=${PR%%/*}    
             docker tag $IMAGE:${TAG_SHA} $IMAGE:pr-$PR
             docker push $IMAGE:pr-$PR
           fi
