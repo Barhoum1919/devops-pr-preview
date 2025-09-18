@@ -1,4 +1,4 @@
-name: Cleanup PR preview
+name: Cleanup PR Preview
 on:
   pull_request:
     types: [ closed ]
@@ -7,13 +7,18 @@ jobs:
   cleanup:
     runs-on: self-hosted
     steps:
+      # 1️⃣ Checkout repo
       - uses: actions/checkout@v4
+
+      # 2️⃣ Remove preview containers + nginx config
       - name: Remove preview container + nginx
         run: |
+          set -euo pipefail
           chmod +x ./scripts/remove_preview.sh
-          PR=${{ github.event.pull_request.number }}
-          ./scripts/remove_preview.sh $PR
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          ./scripts/remove_preview.sh $PR_NUMBER
 
+      # 3️⃣ Delete PR image from GHCR
       - name: Delete GHCR image tag for PR
         uses: dataaxiom/ghcr-cleanup-action@v1
         with:
@@ -22,3 +27,4 @@ jobs:
           tag: pr-${{ github.event.pull_request.number }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
