@@ -20,6 +20,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/web
 
+  
 jobs:
   deploy-main:
     if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
