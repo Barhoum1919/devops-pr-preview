@@ -1,0 +1,33 @@
+name: Deploy
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy (base or PR)
+        env:
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          chmod +x ./scripts/*.sh
+          if [ "${{ github.event_name }}" = "push" ]; then
+            ./scripts/deploy_base.sh
+          else
+            PR=${{ github.event.pull_request.number }}
+            ./scripts/deploy_preview.sh $PR
+            # post comment with URL
+            PREVIEW_URL="https://pr-${PR}.yourname.duckdns.org"
+            echo "Posting PR comment with preview URL"
+            gh auth setup-git  # optional if using gh
+            # use API to post a comment
+            curl -s -S -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                 -H "Accept: application/vnd.github+json" \
+                 https://api.github.com/repos/${{ github.repository }}/issues/${PR}/comments \
+                 -d "{\"body\":\"🔎 Preview deployed: ${PREVIEW_URL}\"}"
+          fi
