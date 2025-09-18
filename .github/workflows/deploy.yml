@@ -36,7 +36,7 @@ jobs:
       - name: Deploy main application
         run: |
           export GITHUB_REPOSITORY="${{ github.repository }}"
-          ./scripts/deploy-base.sh ${{ vars.DOMAIN_NAME }} latest
+          ./scripts/deploy_base.sh ${{ vars.DOMAIN_NAME }} latest
         env:
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
 
