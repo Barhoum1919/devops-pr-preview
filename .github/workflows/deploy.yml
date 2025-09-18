@@ -41,6 +41,7 @@ jobs:
           ./scripts/deploy_base.sh ${{ vars.DOMAIN_NAME }} latest
         env:
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
 
   deploy-pr-preview:
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
