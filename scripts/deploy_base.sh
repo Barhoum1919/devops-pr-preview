@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 OWNER="<github-owner>"
-REPO="<repo>"   # e.g., yourname/converty-devops-task
+REPO="Barhoum1919/devops-pr-preview"   
 IMAGE="ghcr.io/${OWNER}/${REPO}/web:latest"
 HOST_PORT=3000
 
@@ -23,8 +23,8 @@ server {
   server_name yourname.duckdns.org;
 
   # ssl cert paths (adjust)
-  ssl_certificate /etc/ssl/yourname/fullchain.pem;
-  ssl_certificate_key /etc/ssl/yourname/privkey.pem;
+  ssl_certificate /etc/ssl/barhoum1919/fullchain.pem;
+  ssl_certificate_key /etc/ssl/barhoum1919/privkey.pem;
 
   location / {
     proxy_pass http://127.0.0.1:${HOST_PORT};
@@ -39,4 +39,4 @@ else
   sudo nginx -s reload
 fi
 
-echo "Base deployed to https://yourname.duckdns.org"
+echo "Base deployed to https://barhoum1919.duckdns.org"

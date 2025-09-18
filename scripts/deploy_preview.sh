@@ -5,7 +5,7 @@ if [ -z "$PR" ]; then
   echo "Usage: $0 <pr-number>"; exit 2
 fi
 OWNER="<github-owner>"
-REPO="<repo>"
+REPO="Barhoum1919/devops-pr-preview"
 IMAGE="ghcr.io/${OWNER}/${REPO}/web:pr-${PR}"
 
 # choose a host port: 30000 + PR (safe for typical PR numbers)
@@ -24,10 +24,10 @@ sudo tee "$SITENAME" > /dev/null <<EOF
 server {
   listen 80;
   listen 443 ssl;
-  server_name pr-${PR}.yourname.duckdns.org;
+  server_name pr-${PR}.barhoum1919.duckdns.org;
 
-  ssl_certificate /etc/ssl/yourname/fullchain.pem;
-  ssl_certificate_key /etc/ssl/yourname/privkey.pem;
+  ssl_certificate /etc/ssl/barhoum1919/fullchain.pem;
+  ssl_certificate_key /etc/ssl/barhoum1919/privkey.pem;
 
   location / {
     proxy_pass http://127.0.0.1:${HOST_PORT};
@@ -40,4 +40,4 @@ EOF
 sudo ln -sf "$SITENAME" /etc/nginx/sites-enabled/pr-${PR}.conf
 sudo nginx -s reload
 
-echo "Preview deployed: https://pr-${PR}.yourname.duckdns.org"
+echo "Preview deployed: https://pr-${PR}.barhoum1919.duckdns.org"
