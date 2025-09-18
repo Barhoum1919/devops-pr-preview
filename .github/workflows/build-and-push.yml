@@ -1,42 +1,80 @@
-name: Build & Push Images
+name: Build and Push Container Images
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/web
 
 jobs:
-  build:
-    runs-on: self-hosted
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tags: ${{ steps.meta.outputs.tags }}
+
     steps:
-      # 1️⃣ Checkout code
-      - uses: actions/checkout@v4
-      # 3️⃣ Log in to GHCR
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}  
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4️⃣ Build & tag Docker image
-      - name: Build & push Docker images
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr,prefix=pr-
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Set build args
+        id: build-args
         run: |
-          set -euo pipefail
-          
-          IMAGE=ghcr.io/${{ github.repository }}/web
-          TAG_SHA=sha-${GITHUB_SHA::7}
-
-          # Build image
-          docker build -t $IMAGE:${TAG_SHA} -t $IMAGE:latest .
-
-          # Push base images
-          docker push $IMAGE:${TAG_SHA}
-          docker push $IMAGE:latest
-
-          # Tag and push PR preview image if this is a PR
-          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            PR_NUMBER=${{ github.event.pull_request.number }}
-            docker tag $IMAGE:${TAG_SHA} $IMAGE:pr-$PR_NUMBER
-            docker push $IMAGE:pr-$PR_NUMBER
+          echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "build-time=$(date -Iseconds)" >> $GITHUB_OUTPUT
+          echo "git-sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "pr-number=${{ github.event.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "pr-number=main" >> $GITHUB_OUTPUT
           fi
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            REACT_APP_VERSION=${{ steps.build-args.outputs.version }}
+            REACT_APP_BUILD_TIME=${{ steps.build-args.outputs.build-time }}
+            REACT_APP_GIT_SHA=${{ steps.build-args.outputs.git-sha }}
+            REACT_APP_PR_NUMBER=${{ steps.build-args.outputs.pr-number }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Output image info
+        run: |
+          echo "Image pushed successfully!"
+          echo "Tags: ${{ steps.meta.outputs.tags }}"
+          echo "Digest: ${{ steps.build.outputs.digest }}"
