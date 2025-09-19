@@ -27,9 +27,13 @@ docker stop pr-$PR_NUMBER || true
 docker rm pr-$PR_NUMBER || true
 docker run -d --name pr-$PR_NUMBER -p ${HOST_PORT}:80 "$IMAGE"
 
-# Try to expose via ngrok
-NGROK_URL=$(ngrok http $HOST_PORT --log=stdout --region=eu | grep -o 'https://[0-9a-z-]*\.ngrok-free\.app' | head -1 || true)
-
+ngrok http $HOST_PORT --region=eu --log=stdout > ngrok.log 2>&1 &
+NGROK_PID=$!
+# Give ngrok a few seconds to start
+sleep 5
+# Get the public URL via ngrok's local API
+NGROK_URL=$(curl --silent http://127.0.0.1:4040/api/tunnels \
+  | jq -r '.tunnels[0].public_url')
 if [ -n "$NGROK_URL" ]; then
   echo "🌐 PR #${PR_NUMBER} preview available via ngrok: $NGROK_URL"
   PREVIEW_URL="$NGROK_URL"
