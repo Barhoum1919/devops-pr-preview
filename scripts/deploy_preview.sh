@@ -41,7 +41,6 @@ if command -v ngrok &> /dev/null; then
     sleep 5
     NGROK_URL=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
 fi
-
 if [ -n "$NGROK_URL" ]; then
     echo "🌐 PR #$PR_NUMBER preview available via ngrok: $NGROK_URL"
     PREVIEW_URL="$NGROK_URL"
