@@ -47,6 +47,7 @@ if command -v ngrok &> /dev/null; then
         if [[ -n "$NGROK_URL" ]]; then
             echo "Ngrok URL is reachable: $NGROK_URL"
             break
+        fi
         echo "Waiting for ngrok tunnel to become reachable..."
         sleep 5
     done
