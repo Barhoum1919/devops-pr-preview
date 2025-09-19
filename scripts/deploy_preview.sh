@@ -27,7 +27,11 @@ docker stop pr-$PR_NUMBER || true
 docker rm pr-$PR_NUMBER || true
 docker run -d --name pr-$PR_NUMBER -p ${HOST_PORT}:80 "$IMAGE"
 
-ngrok http $HOST_PORT --region=eu --log=stdout > ngrok.log 2>&1 &
+echo "Waiting for container to start..."
+until curl -s http://127.0.0.1:$HOST_PORT > /dev/null; do
+    sleep 2
+done
+nohup ngrok http $HOST_PORT --region=eu --log=stdout > ngrok.log 2>&1 &
 NGROK_PID=$!
 # Give ngrok a few seconds to start
 sleep 5
