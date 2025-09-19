@@ -59,7 +59,7 @@ jobs:
           echo "PR Number: $PR_NUMBER"
 
       - name: Log in to Container Registry
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+        run: echo ${{ secrets.GHCR_PAT }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       - name: Deploy PR preview
         id: deploy
         run: |
@@ -72,6 +72,7 @@ jobs:
           
         env:
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
 
       - name: Comment PR
         uses: actions/github-script@v7

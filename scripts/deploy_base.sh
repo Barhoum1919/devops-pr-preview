@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -e
-set -x  # prints commands for debugging
+set -x  
 
 DOMAIN_NAME=$1
 IMAGE_TAG=$2
 
-OWNER="barhoum1919"       # lowercase for Docker
-REPO="devops-pr-preview"  # lowercase for Docker
+OWNER="barhoum1919"       
+REPO="devops-pr-preview"  
 IMAGE="ghcr.io/${OWNER}/${REPO}/web:${IMAGE_TAG}"
 HOST_PORT=3000
 
@@ -47,7 +47,10 @@ EOF
   sudo ln -sf "$SITENAME" /etc/nginx/sites-enabled/base.conf
 fi
 
-# Reload Nginx
-sudo nginx -s reload
+if pgrep nginx > /dev/null; then
+    sudo nginx -s reload
+else
+    sudo nginx
+fi
 
 echo "✅ Base deployed to https://${DOMAIN_NAME}"
