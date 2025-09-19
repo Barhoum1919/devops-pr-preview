@@ -29,7 +29,7 @@ for i in {1..10}; do
         break
     fi
     echo "Waiting..."
-    sleep 3
+    sleep 5
 done
 
 # Start ngrok
@@ -38,7 +38,7 @@ if command -v ngrok &> /dev/null; then
     echo "Starting ngrok..."
     pkill -f "ngrok http $HOST_PORT" || true
     nohup ngrok http $HOST_PORT --region=eu &>/dev/null &
-    sleep 5
+    sleep 10
 
     # Wait until ngrok URL responds
     for i in {1..12}; do
@@ -53,8 +53,8 @@ if command -v ngrok &> /dev/null; then
 fi
 
 PREVIEW_URL=${NGROK_URL:-"http://127.0.0.1:$HOST_PORT"}
-echo "🌐 Base app available via: $PREVIEW_URL"
+echo " Base app available via: $PREVIEW_URL"
 
 # Output for GitHub Actions
 echo "preview-url=$PREVIEW_URL" >> $GITHUB_OUTPUT
-echo "✅ Deployment complete!"
+echo " Deployment complete!"

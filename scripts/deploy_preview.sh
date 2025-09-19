@@ -58,8 +58,8 @@ if command -v ngrok &> /dev/null; then
 fi
 
 PREVIEW_URL=${NGROK_URL:-"http://127.0.0.1:$HOST_PORT"}
-echo "🌐 PR #$PR_NUMBER preview available via: $PREVIEW_URL"
+echo " PR #$PR_NUMBER preview available via: $PREVIEW_URL"
 
 # Output for GitHub Actions
 echo "preview-url=$PREVIEW_URL" >> $GITHUB_OUTPUT
-echo "✅ PR #$PR_NUMBER deployment complete!"
+echo " PR #$PR_NUMBER deployment complete!"
