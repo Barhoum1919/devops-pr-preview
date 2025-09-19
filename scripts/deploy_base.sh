@@ -39,12 +39,12 @@ if command -v ngrok &> /dev/null; then
     echo "Starting ngrok..."
     pkill -f "ngrok http $HOST_PORT" || true
     nohup ngrok http $HOST_PORT --region=eu &>/dev/null &
-    sleep 10
+    sleep 5
 
-    # Wait until ngrok URL responds
-    for i in {1..12}; do
-        NGROK_URL=$(grep -o 'https://[a-z0-9]*\.ngrok-free\.app' /tmp/ngrok.log | head -1)
-        if [[ -n "$NGROK_URL" ]]; then
+    for i in $(seq 1 12); do
+        NGROK_URL=$(curl -s http://127.0.0.1:4040/api/tunnels \
+                    | jq -r '.tunnels[0].public_url' 2>/dev/null)
+        if [[ -n "$NGROK_URL" && "$NGROK_URL" != "null" ]]; then
             echo "Ngrok URL is reachable: $NGROK_URL"
             break
         fi
