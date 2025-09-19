@@ -65,6 +65,7 @@ jobs:
       - name: Deploy PR preview
         id: deploy
         run: |
+          chmod +x ./scripts/deploy_preview.sh
           export GITHUB_REPOSITORY="${{ github.repository }}"
           export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           export GITHUB_ACTOR="${{ github.actor }}"
