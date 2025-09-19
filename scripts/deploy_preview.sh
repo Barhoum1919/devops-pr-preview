@@ -37,6 +37,8 @@ for i in {1..10}; do
     sleep 3
 done
 
+pkill -f "ngrok http $HOST_PORT" || true
+
 # Start ngrok
 NGROK_URL=""
 if command -v ngrok &> /dev/null; then
@@ -56,7 +58,7 @@ if command -v ngrok &> /dev/null; then
         sleep 5
     done
 fi
-
+curl -v $NGROK_URL/health
 PREVIEW_URL=${NGROK_URL:-"http://127.0.0.1:$HOST_PORT"}
 echo " PR #$PR_NUMBER preview available via: $PREVIEW_URL"
 
