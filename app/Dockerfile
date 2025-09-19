@@ -11,19 +11,6 @@ RUN npm ci --only=production
 
 # Copy source code
 COPY . .
-
-# Build arguments for environment info
-ARG REACT_APP_VERSION=latest
-ARG REACT_APP_BUILD_TIME
-ARG REACT_APP_GIT_SHA
-ARG REACT_APP_PR_NUMBER
-
-# Set environment variables
-ENV REACT_APP_VERSION=$REACT_APP_VERSION
-ENV REACT_APP_BUILD_TIME=$REACT_APP_BUILD_TIME
-ENV REACT_APP_GIT_SHA=$REACT_APP_GIT_SHA
-ENV REACT_APP_PR_NUMBER=$REACT_APP_PR_NUMBER
-
 # Build the app
 RUN npm run build
 
