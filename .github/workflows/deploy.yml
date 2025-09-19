@@ -68,10 +68,10 @@ jobs:
           export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           export GITHUB_ACTOR="${{ github.actor }}"
           export GITHUB_SHA="${{ github.sha }}"
-          ./scripts/deploy_preview.sh ${{ steps.pr.outputs.number }} ${{ vars.DOMAIN_NAME || 'barhoum1919' }}
+          ./scripts/deploy_preview.sh ${{ steps.pr.outputs.number }} 
           
         env:
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
+          
           GHCR_PAT: ${{ secrets.GHCR_PAT }}
 
       - name: Comment PR

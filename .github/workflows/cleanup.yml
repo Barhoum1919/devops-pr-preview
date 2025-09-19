@@ -33,7 +33,7 @@ jobs:
           export GITHUB_REPOSITORY="${{ github.repository }}"
           export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           export GITHUB_ACTOR="${{ github.actor }}"
-          ./scripts/remove_preview.sh ${{ steps.pr.outputs.number }} ${{ vars.DOMAIN_NAME || 'barhoum1919' }}
+          ./scripts/remove_preview.sh ${{ steps.pr.outputs.number }} 
 
       - name: Delete container registry tag
         continue-on-error: true

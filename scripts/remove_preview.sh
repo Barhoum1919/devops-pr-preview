@@ -8,10 +8,3 @@ fi
 echo "Stopping and removing container pr-$PR"
 docker stop pr-$PR || true
 docker rm pr-$PR || true
-
-SITENAME="/etc/nginx/sites-available/pr-${PR}.conf"
-if [ -f "$SITENAME" ]; then
-  sudo rm -f "/etc/nginx/sites-enabled/pr-${PR}.conf"
-  sudo rm -f "$SITENAME"
-  sudo nginx -s reload
-fi
