@@ -33,7 +33,12 @@ jobs:
 
       - name: Log in to Container Registry
         run: echo ${{ secrets.GHCR_PAT }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-
+      - name: Debug Docker and ngrok
+        run: |
+           docker ps
+           docker logs base
+           curl http://localhost:3000/health
+           curl http://127.0.0.1:4040/api/tunnels | jq
       - name: Deploy main application
         run: |
           chmod +x ./scripts/*.sh
