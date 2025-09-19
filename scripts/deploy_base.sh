@@ -43,11 +43,10 @@ if command -v ngrok &> /dev/null; then
 
     # Wait until ngrok URL responds
     for i in {1..12}; do
-        NGROK_URL=$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-        if curl -s --head --fail "$NGROK_URL" >/dev/null 2>&1; then
+        NGROK_URL=$(grep -o 'https://[a-z0-9]*\.ngrok-free\.app' /tmp/ngrok.log | head -1)
+        if [[ -n "$NGROK_URL" ]]; then
             echo "Ngrok URL is reachable: $NGROK_URL"
             break
-        fi
         echo "Waiting for ngrok tunnel to become reachable..."
         sleep 5
     done
