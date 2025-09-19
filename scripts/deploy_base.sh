@@ -32,6 +32,7 @@ done
 until curl -s http://127.0.0.1:$HOST_PORT > /dev/null; do sleep 2; done
 
 NGROK_LOG=$(mktemp)
+pkill -f "ngrok http $HOST_PORT" || true
 nohup ngrok http $HOST_PORT --region=eu --log=stdout > ngrok.log 2>&1 &
 NGROK_PID=$!
 
