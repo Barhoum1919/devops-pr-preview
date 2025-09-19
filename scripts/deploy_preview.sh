@@ -3,7 +3,7 @@ set -e
 set -x
 
 PR_NUMBER=$1
-DOMAIN_NAME=$2
+DOMAIN_NAME=$2  # optional, we won't use it for Ngrok
 
 OWNER="barhoum1919"
 REPO="devops-pr-preview"
@@ -25,29 +25,20 @@ docker stop pr-$PR_NUMBER || true
 docker rm pr-$PR_NUMBER || true
 docker run -d --name pr-$PR_NUMBER -p ${HOST_PORT}:80 "$IMAGE"
 
-# Create Nginx site file for PR if missing
-SITENAME="/etc/nginx/sites-available/pr-$PR_NUMBER.conf"
-if [ ! -f "$SITENAME" ]; then
-  sudo tee "$SITENAME" > /dev/null <<EOF
-server {
-    listen 80;
-    listen 443 ssl;
-    server_name pr-${PR_NUMBER}.${DOMAIN_NAME};
+# Start Ngrok tunnel in background
+NGROK_LOG="/tmp/ngrok_pr_${PR_NUMBER}.log"
+nohup ngrok http $HOST_PORT --log=$NGROK_LOG > /dev/null 2>&1 &
 
-    ssl_certificate /etc/ssl/barhoum1919/fullchain.pem;
-    ssl_certificate_key /etc/ssl/barhoum1919/privkey.pem;
+# Wait for Ngrok to initialize
+sleep 5
 
-    location / {
-        proxy_pass http://127.0.0.1:${HOST_PORT};
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-    }
-}
-EOF
-  sudo ln -sf "$SITENAME" /etc/nginx/sites-enabled/pr-$PR_NUMBER.conf
+# Get public Ngrok URL
+NGROK_URL=$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+
+if [ -z "$NGROK_URL" ]; then
+  echo "❌ Failed to get Ngrok URL. Check ngrok logs at $NGROK_LOG"
+  exit 1
 fi
 
-# Reload Nginx
-sudo nginx -s reload
-
-echo "✅ PR #${PR_NUMBER} preview deployed to https://pr-${PR_NUMBER}.${DOMAIN_NAME}"
+echo "✅ PR #${PR_NUMBER} preview deployed to $NGROK_URL"
+echo "preview-url=$NGROK_URL" >> $GITHUB_OUTPUT
