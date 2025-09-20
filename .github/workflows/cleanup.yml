@@ -32,7 +32,7 @@ jobs:
         run: |
           chmod +x ./scripts/remove_preview.sh
           export GITHUB_REPOSITORY="${{ github.repository }}"
-          export GITHUB_TOKEN="${{ secrets.GHCR_PAT }}"
+          export GITHUB_TOKEN="${{ secrets.GHCR_PACKAGE }}"
           export GITHUB_ACTOR="${{ github.actor }}"
           ./scripts/remove_preview.sh ${{ steps.pr.outputs.number }} 
 
@@ -49,7 +49,7 @@ jobs:
           
           # Get package versions
           VERSIONS_JSON=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
+            -H "Authorization: Bearer ${{ secrets.GHCR_PACKAGE}}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/users/${GITHUB_OWNER}/packages/container/${PACKAGE_NAME}/versions" || echo "[]")
           
@@ -59,7 +59,7 @@ jobs:
             if [ -n "$VERSION_ID" ] && [ "$VERSION_ID" != "null" ]; then
               echo "🗑️ Deleting version ID: $VERSION_ID"
               curl -X DELETE \
-               -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
+               -H "Authorization: Bearer ${{ secrets.GHCR_PACKAGE}}" \
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/users/${GITHUB_OWNER}/packages/container/${PACKAGE_NAME}/versions/${VERSION_ID}"\
                && echo "✅ Registry tag deleted successfully" \
