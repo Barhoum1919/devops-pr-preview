@@ -72,6 +72,7 @@ jobs:
         if: github.event.action == 'closed'
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.REPO_COMMENTER_PAT }}
           script: |
             const comment = `## 🧹 PR Preview Cleaned Up
             
