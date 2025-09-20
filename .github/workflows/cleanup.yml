@@ -51,21 +51,26 @@ jobs:
           VERSIONS_JSON=$(curl -s \
             -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/users/${GITHUB_OWNER}/packages/container/${PACKAGE_NAME}/versions")
+            "https://api.github.com/user/packages/container/${PACKAGE_NAME}/versions" || echo "[]")
           
-          # Find and delete the specific version
-          VERSION_ID=$(echo "$VERSIONS_JSON" | jq -r --arg TAG "$PR_TAG" '.[] | select(.metadata.container.tags[]? == $TAG) | .id' | head -n 1)
-          if [ -n "$VERSION_ID" ] && [ "$VERSION_ID" != "null" ]; then
-            echo "🗑️ Deleting version ID: $VERSION_ID"
-            curl -X DELETE \
-              -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/users/${GITHUB_OWNER}/packages/container/${PACKAGE_NAME}/versions/${VERSION_ID}" \
-              && echo "✅ Registry tag deleted successfully" \
-              || echo "⚠️ Failed to delete registry tag"
+          if echo "$VERSIONS_JSON" | jq -e 'type=="array"' >/dev/null; then
+             VERSION_ID=$(echo "$VERSIONS_JSON" | jq -r --arg TAG "$PR_TAG" '.[] | select(.metadata.container.tags[]? == $TAG) | .id' | head -n 1)
+           
+            if [ -n "$VERSION_ID" ] && [ "$VERSION_ID" != "null" ]; then
+              echo "🗑️ Deleting version ID: $VERSION_ID"
+              curl -X DELETE \
+               -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/user/packages/container/${PACKAGE_NAME}/versions/${VERSION_ID}"\
+               && echo "✅ Registry tag deleted successfully" \
+               || echo "⚠️ Failed to delete registry tag"
+            else
+              echo "ℹ️ No registry tag found for $PR_TAG"
+            fi
           else
-            echo "ℹ️ No registry tag found for $PR_TAG"
+            echo "⚠️ Failed to fetch package versions or invalid response"
           fi
+        
 
       - name: Comment PR cleanup
         if: github.event.action == 'closed'
