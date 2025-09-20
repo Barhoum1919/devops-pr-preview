@@ -19,7 +19,10 @@ docker stop base || true
 docker rm base || true
 
 echo "Running container on port $HOST_PORT..."
-docker run -d --name base -p ${HOST_PORT}:80 "$IMAGE"
+docker run -d \
+  --name base \
+  -p ${HOST_PORT}:3000 \
+  "$IMAGE"
 
 echo "Waiting for container to become healthy..."
 for i in {1..10}; do
