@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 
 PR="$1"
 if [ -z "$PR" ]; then
@@ -8,11 +8,20 @@ if [ -z "$PR" ]; then
 fi
 
 CONTAINER_NAME="pr-$PR"
+HOST_PORT=$((3000 + PR))
 
-echo "[$(date +'%Y-%m-%d %H:%M:%S')] Stopping container $CONTAINER_NAME..."
-docker stop "$CONTAINER_NAME" || echo "⚠️ Container not running or already stopped"
+echo "Stopping and removing container $CONTAINER_NAME..."
+docker stop "$CONTAINER_NAME" || true
+docker rm "$CONTAINER_NAME" || true
 
-echo "[$(date +'%Y-%m-%d %H:%M:%S')] Removing container $CONTAINER_NAME..."
-docker rm "$CONTAINER_NAME" || echo "⚠️ Container already removed or does not exist"
+echo "Stopping any ngrok tunnel for port $HOST_PORT..."
+pkill -f "ngrok http $HOST_PORT" || true
 
-echo "[$(date +'%Y-%m-%d %H:%M:%S')] ✅ PR preview container cleanup done."
+# Optional: remove local GHCR image
+IMAGE="ghcr.io/barhoum1919/devops-pr-preview/web:pr-$PR"
+if docker image inspect "$IMAGE" >/dev/null 2>&1; then
+    echo "Removing image $IMAGE..."
+    docker rmi "$IMAGE" || true
+fi
+
+echo "Cleanup for PR #$PR complete!"
