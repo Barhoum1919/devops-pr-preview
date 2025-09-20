@@ -58,7 +58,7 @@ This workflow automates:
    - Solution:
      - Use `GHCR_PAT` with `write:packages` for registry operations
      - Use a separate `REPO_COMMENTER_PAT` with `repo` scope to comment on PRs
-3. **DuckDNS Erros**
+3. **DuckDNS Errors**
    - Port Forwading/Firewall rules block inbound traffic to the host machine
    - Causes:
      - Firewall rules
