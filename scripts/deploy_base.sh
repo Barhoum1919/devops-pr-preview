@@ -41,6 +41,7 @@ NGROK_URL=""
 if command -v ngrok &> /dev/null; then
     echo "Starting ngrok..."
     pkill -f "ngrok http $HOST_PORT" || true
+    ngrok config add-authtoken "$NGROK_AUTHTOKEN"
     nohup ngrok http $HOST_PORT --region=eu &>/dev/null &
     sleep 5
 
