@@ -30,6 +30,7 @@ jobs:
 
       - name: Remove PR preview
         run: |
+          chmod +x ./scripts/remove_preview.sh
           export GITHUB_REPOSITORY="${{ github.repository }}"
           export GITHUB_TOKEN="${{ secrets.GHCR_PAT }}"
           export GITHUB_ACTOR="${{ github.actor }}"
@@ -38,11 +39,11 @@ jobs:
       - name: Delete container registry tag
         continue-on-error: true
         run: |
-          # Enhanced registry cleanup
+          PR_TAG="pr-${{ steps.pr.outputs.number }}"
           GITHUB_OWNER="Barhoum1919"
           GITHUB_REPO="devops-pr-preview"
           PACKAGE_NAME=$(echo "${GITHUB_OWNER}/${GITHUB_REPO}" | tr '[:upper:]' '[:lower:]')/web
-          PR_TAG="pr-${{ steps.pr.outputs.number }}"
+          
           
           echo "🗑️ Attempting to delete registry tag: $PR_TAG"
           
