@@ -51,17 +51,16 @@ jobs:
           VERSIONS_JSON=$(curl -s \
             -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/user/packages/container/${PACKAGE_NAME}/versions" || echo "[]")
+            "https://api.github.com/users/${GITHUB_OWNER}/packages/container/${PACKAGE_NAME}/versions")
           
           # Find and delete the specific version
-          VERSION_ID=$(echo "$VERSIONS_JSON" | jq -r ".[] | select(.metadata.container.tags[]? == \"$PR_TAG\") | .id" | head -1)
-          
+          VERSION_ID=$(echo "$VERSIONS_JSON" | jq -r --arg TAG "$PR_TAG" '.[] | select(.metadata.container.tags[]? == $TAG) | .id' | head -n 1)
           if [ -n "$VERSION_ID" ] && [ "$VERSION_ID" != "null" ]; then
             echo "🗑️ Deleting version ID: $VERSION_ID"
             curl -X DELETE \
               -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
               -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/user/packages/container/${PACKAGE_NAME}/versions/${VERSION_ID}" \
+              "https://api.github.com/users/${GITHUB_OWNER}/packages/container/${PACKAGE_NAME}/versions/${VERSION_ID}" \
               && echo "✅ Registry tag deleted successfully" \
               || echo "⚠️ Failed to delete registry tag"
           else
