@@ -39,38 +39,42 @@ jobs:
       - name: Delete container registry tag
         continue-on-error: true
         run: |
-          PR_TAG="pr-${{ steps.pr.outputs.number }}"
-          GITHUB_OWNER="Barhoum1919"
-          GITHUB_REPO="devops-pr-preview"
-          PACKAGE_NAME=$(echo "${GITHUB_OWNER}/${GITHUB_REPO}" | tr '[:upper:]' '[:lower:]')/web
-          
-          
-          echo "🗑️ Attempting to delete registry tag: $PR_TAG"
-          
-          # Get package versions
-          VERSIONS_JSON=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/users/${GITHUB_OWNER}/packages/container/${PACKAGE_NAME}/versions" || echo "[]")
-          
-          if echo "$VERSIONS_JSON" | jq -e 'type=="array"' >/dev/null; then
-             VERSION_ID=$(echo "$VERSIONS_JSON" | jq -r --arg TAG "$PR_TAG" '.[] | select(.metadata.container.tags[]? == $TAG) | .id' | head -n 1)
-           
-            if [ -n "$VERSION_ID" ] && [ "$VERSION_ID" != "null" ]; then
-              echo "🗑️ Deleting version ID: $VERSION_ID"
-              curl -X DELETE \
-               -H "Authorization: Bearer ${{ secrets.GHCR_PAT}}" \
-               -H "Accept: application/vnd.github.v3+json" \
-               "https://api.github.com/users/${GITHUB_OWNER}/packages/container/${PACKAGE_NAME}/versions/${VERSION_ID}"\
-               && echo "✅ Registry tag deleted successfully" \
-               || echo "⚠️ Failed to delete registry tag"
-            else
-              echo "ℹ️ No registry tag found for $PR_TAG"
-            fi
-          else
-            echo "⚠️ Failed to fetch package versions or invalid response"
-          fi
-        
+              PR_TAG="pr-${{ steps.pr.outputs.number }}"
+              GITHUB_OWNER="Barhoum1919"
+              PACKAGE_NAME="devops-pr-preview/web"
+              ENCODED_PACKAGE_NAME="devops-pr-preview%2Fweb"  
+              
+              echo "🗑️ Deleting tag: $PR_TAG from package: $PACKAGE_NAME"
+              
+              # Use org endpoint (from your URL example)
+              API_URL="https://api.github.com/orgs/${GITHUB_OWNER}/packages/container/${ENCODED_PACKAGE_NAME}/versions"
+              
+              # Get versions
+              VERSIONS_JSON=$(curl -s \
+                -H "Authorization: Bearer ${{ secrets.GHCR_PAT }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "$API_URL")
+              
+              # Find and delete the version with our tag
+              VERSION_ID=$(echo "$VERSIONS_JSON" | jq -r --arg TAG "$PR_TAG" '.[] | select(.metadata.container.tags[]? == $TAG) | .id' | head -n 1)
+              
+              if [ -n "$VERSION_ID" ] && [ "$VERSION_ID" != "null" ]; then
+                DELETE_URL="https://api.github.com/orgs/${GITHUB_OWNER}/packages/container/${ENCODED_PACKAGE_NAME}/versions/${VERSION_ID}"
+                
+                RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+                  -H "Authorization: Bearer ${{ secrets.GHCR_PAT }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  "$DELETE_URL")
+                
+                if [ "$RESPONSE_CODE" = "204" ]; then
+                  echo "✅ Successfully deleted tag: $PR_TAG"
+                else
+                  echo "⚠️ Failed to delete tag (HTTP $RESPONSE_CODE)"
+                fi
+              else
+                echo "ℹ️ Tag $PR_TAG not found in registry"
+              fi
+                  
 
       - name: Comment PR cleanup
         if: github.event.action == 'closed'
