@@ -23,7 +23,7 @@ env:
   
 jobs:
   deploy-main:
-    if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success'
     runs-on: self-hosted
     environment: production
     
