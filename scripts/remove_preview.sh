@@ -17,7 +17,7 @@ docker rm "$CONTAINER_NAME" || true
 echo "Stopping any ngrok tunnel for port $HOST_PORT..."
 pkill -f "ngrok http $HOST_PORT" || true
 
-# Optional: remove local GHCR image
+
 IMAGE="ghcr.io/barhoum1919/devops-pr-preview/web:pr-$PR"
 if docker image inspect "$IMAGE" >/dev/null 2>&1; then
     echo "Removing image $IMAGE..."

@@ -16,15 +16,24 @@ fi
 echo "Logging into GHCR..."
 echo $GHCR_PAT | docker login ghcr.io -u $OWNER --password-stdin
 
-echo "Pulling PR image $IMAGE..."
-docker pull "$IMAGE"
+# Pull the SHA-tagged image built in CI
+SHA_IMAGE="$IMAGE_NAME:sha-${GITHUB_SHA}"
+docker pull $SHA_IMAGE
+
+# Tag the image as pr-<number>
+docker tag $SHA_IMAGE $IMAGE_NAME:$IMAGE_TAG
+
+# Push the pr-<number> tag to GHCR
+docker push $IMAGE_NAME:$IMAGE_TAG
+echo "✅ Image pushed: $IMAGE_NAME:$IMAGE_TAG"
+
 
 echo "Stopping old container $CONTAINER_NAME..."
 docker stop $CONTAINER_NAME || true
 docker rm $CONTAINER_NAME || true
 
 echo "Running PR container on port $HOST_PORT..."
-docker run -d --name $CONTAINER_NAME -p ${HOST_PORT}:80 "$IMAGE"
+docker run -d --name $CONTAINER_NAME -p ${HOST_PORT}:80 $IMAGE_NAME:$IMAGE_TAG
 
 echo "Waiting for container to become healthy..."
 for i in {1..10}; do
