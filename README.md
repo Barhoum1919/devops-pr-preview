@@ -87,7 +87,7 @@ This workflow automates:
 
 ## 🔹 How to Use
 
-1. Set secrets `GHCR_PAT` and `REPO_COMMENTER_PAT` in your repository
+1. Set secrets `GHCR_PAT` , `REPO_COMMENTER_PAT` , `GHCR_PACKAGE` and `NGROK_AUTHTOKEN` in your repository
 2. Create a PR or manually trigger the cleanup workflow
 3. Check logs to ensure container is running and ngrok URL is live
 4. Confirm the PR comment after cleanup
