@@ -110,9 +110,14 @@ bind the running container of base-app with ngrok(keep this terminal opened) :
    ```
 after creating a pull request you can also preview the PR with ngrok locally by (in new terminal) :
 ```bash
-   ngrok http 3001
+   docker ps 
+   ```
+view the container of the PR and catch the port(generally 3000+PRnumber)
+```bash
+   ngrok http 3000+${PRnumber}
    ```
 
+Now you can see the difference in the UI between the base application and the PR 
 
 ---
 
