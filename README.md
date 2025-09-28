@@ -87,10 +87,32 @@ This workflow automates:
 
 ## 🔹 How to Use
 
-1. Set secrets `GHCR_PAT` , `REPO_COMMENTER_PAT` , `GHCR_PACKAGE` and `NGROK_AUTHTOKEN` in your repository
-2. Create a PR or manually trigger the cleanup workflow
-3. Check logs to ensure container is running and ngrok URL is live
-4. Confirm the PR comment after cleanup
+- clone the repo :
+  ```bash
+   git clone https://github.com/Barhoum1919/devops-pr-preview
+   ```
+- change directory to the cloned project :
+  ```bash
+   cd devops-pr-preview
+   ```
+- Set secrets `GHCR_PAT` , `REPO_COMMENTER_PAT` , `GHCR_PACKAGE` and `NGROK_AUTHTOKEN` in your repository
+- Create a PR or manually trigger the deployement workflow
+- Check logs to ensure container is running and ngrok URL is live(if not you can build and run the docker containers locally in your machine )
+
+steps to run the containers locally and bind them with ngrok :
+see the running containers :
+  ```bash
+   docker ps
+   ```
+bind the running container of base-app with ngrok(keep this terminal opened) :
+```bash
+   ngrok http 3000
+   ```
+after creating a pull request you can also preview the PR with ngrok locally by (in new terminal) :
+```bash
+   ngrok http 3001
+   ```
+
 
 ---
 
