@@ -24,7 +24,7 @@ docker run -d \
   -p ${HOST_PORT}:80 \
   "$IMAGE"
 
-echo "Waiting for container to become healthy..."
+echo "Waiting for container to become 100 % healthy..."
 for i in {1..10}; do
     HEALTH=$(docker inspect --format='{{.State.Health.Status}}' base || echo "unknown")
     if [[ "$HEALTH" == "healthy" ]]; then
