@@ -11,7 +11,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>DevOps PR Preview Demo</h1>
+        <h1>Hello from PR  </h1>
 
         <div className="build-info">
           <h2>Build Information</h2>
